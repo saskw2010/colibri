@@ -1,0 +1,151 @@
+{
+  "schema_version": "1.0",
+  "snapshot_date": "2026-08-16",
+  "overall_status": "PARTIAL",
+  "training_started": false,
+  "canonical_decision": {
+    "pattern": "frozen_dense_chat_base_plus_mixlora_experts_plus_trainable_router",
+    "router_lab_base": "Qwen/Qwen2.5-0.5B-Instruct",
+    "chat_pilot_base": "Qwen/Qwen2.5-1.5B-Instruct",
+    "native_moe_reference": "allenai/OLMoE-1B-7B-0924",
+    "router_mechanics_reference": "google/switch-base-8",
+    "inference_benchmark": "zai-org/glm-edge-1.5b-chat",
+    "architecture_horizon": ["MoST", "Kimi-K3"]
+  },
+  "asset_layers": [
+    {"type": "gguf", "purpose": "LM Studio inference only", "trainable_base": false},
+    {"type": "safetensors_base", "purpose": "full base for adapter training/loading", "trainable_base": false},
+    {"type": "adapter", "purpose": "LoRA experts plus router weights", "base_bound": true},
+    {"type": "source", "purpose": "architecture/runtime reference"},
+    {"type": "dataset", "purpose": "governed train validation test challenge"},
+    {"type": "harness", "purpose": "request routing state tools telemetry"}
+  ],
+  "models": [
+    {
+      "id": "Qwen/Qwen2.5-0.5B-Instruct",
+      "architecture": "dense_chat",
+      "role": "router_lab_base",
+      "decision": "ADOPT_FIRST",
+      "status": "PLANNED",
+      "reason": "0.49B multilingual including Arabic and qwen2 is supported by local MoE-PEFT",
+      "local_weights": "UNRESOLVED",
+      "next_gate": "download size, hash, license and owner approval"
+    },
+    {
+      "id": "Qwen/Qwen2.5-1.5B-Instruct",
+      "architecture": "dense_chat",
+      "role": "chat_pilot_base",
+      "decision": "ADOPT_AFTER_0_5B",
+      "status": "PLANNED",
+      "reason": "1.54B multilingual chat with Arabic and direct qwen2 runtime support",
+      "local_weights": "UNRESOLVED",
+      "next_gate": "0.5B lab acceptance"
+    },
+    {
+      "id": "zai-org/glm-edge-1.5b-chat",
+      "architecture": "dense_chat",
+      "role": "inference_benchmark",
+      "decision": "DEFER_AS_MIXLORA_BASE",
+      "status": "PARTIAL",
+      "reason": "light model but local MoE-PEFT maps chatglm and not model_type glm",
+      "local_gguf": "F:\\Colibri-Models\\lmstudio\\zai-org\\glm-edge-1.5b-chat-gguf\\ggml-model-Q4_K_M.gguf",
+      "local_gguf_bytes": 980470144,
+      "full_safetensors_bytes": 3186882328,
+      "next_gate": "custom backend feasibility only after Qwen pilot"
+    },
+    {
+      "id": "TinyLlama/TinyLlama-1.1B-Chat",
+      "architecture": "dense_chat",
+      "role": "runtime_fallback",
+      "decision": "KEEP_AS_FALLBACK",
+      "status": "PARTIAL",
+      "reason": "official MoE-PEFT example path but weaker Arabic rationale",
+      "next_gate": "use only if Qwen integration fails"
+    },
+    {
+      "id": "google/switch-base-8",
+      "architecture": "encoder_decoder_native_sparse_moe",
+      "role": "router_mechanics_lab",
+      "decision": "ADOPT_FOR_LEARNING",
+      "status": "PLANNED",
+      "reason": "Top-1 router, capacity, load balancing and z-loss",
+      "next_gate": "small download approval"
+    },
+    {
+      "id": "allenai/OLMoE-1B-7B-0924",
+      "architecture": "decoder_native_sparse_moe",
+      "role": "native_router_reference",
+      "decision": "USE_EXISTING_ONLY",
+      "status": "VERIFIED",
+      "reason": "native MoE reference already present; no re-download",
+      "next_gate": "read-only router telemetry smoke"
+    },
+    {
+      "id": "TUDB-Labs/alpaca-mixlora-7b",
+      "architecture": "mixlora_adapter_for_llama2_7b",
+      "role": "published_reference_adapter",
+      "decision": "REMOTE_SMOKE_ONLY",
+      "status": "PARTIAL",
+      "adapter_bytes": 814359298,
+      "base": "meta-llama/Llama-2-7b-hf",
+      "next_gate": "adapter approval then separate gated base approval"
+    },
+    {
+      "id": "MoST",
+      "architecture": "multimodal_native_moe",
+      "role": "modality_router_reference",
+      "decision": "SOURCE_STUDY_ONLY",
+      "status": "BLOCKED",
+      "local_source": "F:\\AI-RESOURCES\\REFERENCES\\MOE\\MoST",
+      "commit": "9c13577",
+      "reason": "official checkpoints and datasets are not available"
+    },
+    {
+      "id": "Kimi-K3",
+      "architecture": "large_native_moe",
+      "role": "architecture_horizon",
+      "decision": "DO_NOT_USE_AS_LOCAL_BASE",
+      "status": "PARTIAL",
+      "local_source": "F:\\AI-RESOURCES\\REFERENCES\\MOE\\Kimi-K3",
+      "commit": "3cb39df",
+      "reason": "datacenter-scale model; published injection pseudocode was not a runnable recipe"
+    },
+    {
+      "id": "Golden-Gemma-MK7",
+      "architecture": "protected_lane",
+      "role": "existing_training_reference",
+      "decision": "DO_NOT_TOUCH",
+      "status": "VERIFIED",
+      "reason": "independent governed lane; never combine Llama2 adapter with Gemma"
+    }
+  ],
+  "source_modules": [
+    {"name": "MixLoRA", "commit": "d59d09b", "status": "VERIFIED", "decision": "PRIMARY_ADAPTER_MOE_REFERENCE"},
+    {"name": "MoE-PEFT", "commit": "40f8cb7", "status": "VERIFIED", "decision": "PRIMARY_RUNTIME"},
+    {"name": "mLoRA", "commit": "89aa53f", "status": "VERIFIED", "decision": "ADAPTER_FACTORY_REFERENCE"},
+    {"name": "MoE-LoRA", "commit": "8b1ef25", "status": "VERIFIED", "decision": "SECONDARY_TRAINING_REFERENCE"},
+    {"name": "MoLA", "commit": "01785c8", "status": "VERIFIED", "decision": "LAYERWISE_ROUTING_REFERENCE"},
+    {"name": "MoST", "commit": "9c13577", "status": "VERIFIED", "decision": "MODALITY_ROUTER_SOURCE"},
+    {"name": "Kimi-K3", "commit": "3cb39df", "status": "VERIFIED", "decision": "ARCHITECTURE_ONLY"},
+    {"name": "Macaron", "status": "VERIFIED", "decision": "REQUEST_HARNESS_REFERENCE"},
+    {"name": "Router-R1", "status": "VERIFIED", "decision": "LATE_ROUTER_TRAINING_REFERENCE"},
+    {"name": "LLMRouter", "status": "BLOCKED", "decision": "DO_NOT_DEPEND_ON_INCOMPLETE_CLONE"}
+  ],
+  "storage": {
+    "active_models": {"path": "F:\\Colibri-Models\\lmstudio", "status": "VERIFIED"},
+    "source_references": {"path": "F:\\AI-RESOURCES\\REFERENCES\\MOE", "status": "VERIFIED"},
+    "canonical_docs": {"path": "Q:\\Colibri\\docs\\session-map", "status": "VERIFIED"},
+    "lmstudio_junction": {"path": "Q:\\Users\\mosta\\.lmstudio\\models", "target": "F:\\Colibri-Models\\lmstudio", "status": "VERIFIED"},
+    "archive_h": {"path": "H:\\", "status": "UNRESOLVED", "reason": "not visible in latest drive snapshot"}
+  },
+  "guardrails": [
+    "do_not_touch_golden_training",
+    "do_not_touch_gemma_or_mk7_dataset",
+    "do_not_start_training_without_owner_gate",
+    "do_not_download_large_dataset",
+    "do_not_redownload_olmoe",
+    "do_not_use_llama2_mixlora_adapter_with_gemma",
+    "separate_gguf_safetensors_adapter_source_dataset_runtime",
+    "do_not_depend_on_h_until_stable_and_verified"
+  ]
+}
