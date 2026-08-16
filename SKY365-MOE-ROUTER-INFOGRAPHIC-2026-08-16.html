@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sky365 — MoE Router Blueprint</title>
+  <style>
+    :root {
+      --ink:#eaf2ff; --muted:#a9b7cf; --bg:#07101f; --panel:#0d1a2f;
+      --line:#243856; --cyan:#22d3ee; --green:#84cc16; --amber:#f59e0b;
+      --violet:#a78bfa; --red:#fb7185; --blue:#38bdf8;
+    }
+    *{box-sizing:border-box} html{scroll-behavior:smooth}
+    body{margin:0;background:radial-gradient(circle at 84% 4%,#15335c 0,transparent 30%),var(--bg);color:var(--ink);font-family:"Segoe UI",Tahoma,Arial,sans-serif;line-height:1.7}
+    a{color:#7dd3fc;text-decoration:none} a:hover{text-decoration:underline}
+    .wrap{width:min(1220px,94vw);margin:auto;padding:34px 0 70px}
+    .hero{border:1px solid #29486d;border-radius:28px;padding:34px;background:linear-gradient(135deg,rgba(34,211,238,.12),rgba(167,139,250,.08));box-shadow:0 24px 70px #0007;position:relative;overflow:hidden}
+    .hero:after{content:"ROUTER";position:absolute;left:24px;bottom:-28px;font-size:110px;font-weight:900;letter-spacing:.08em;color:#ffffff08}
+    .kicker{color:var(--cyan);font-weight:800;letter-spacing:.06em}.hero h1{font-size:clamp(34px,6vw,72px);line-height:1.05;margin:8px 0 16px;max-width:880px}
+    .hero p{max-width:930px;color:#cfdbef;font-size:19px;margin:0}.date{margin-top:20px;color:var(--muted);font-size:14px}
+    .status{display:inline-flex;padding:4px 10px;border-radius:999px;font-weight:800;font-size:12px;border:1px solid currentColor;white-space:nowrap}
+    .verified{color:#bef264;background:#36531455}.partial{color:#fcd34d;background:#78350f55}.blocked{color:#fda4af;background:#88133755}.planned{color:#7dd3fc;background:#07598555}.unresolved{color:#d8b4fe;background:#581c8755}
+    h2{font-size:28px;margin:45px 0 17px}.sub{color:var(--muted);margin:-10px 0 20px}
+    .decision{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;margin-top:24px}
+    .big-card,.card,.step,.lane,.guard{border:1px solid var(--line);background:linear-gradient(180deg,#10203aee,#0a1629ee);border-radius:20px;padding:22px}
+    .big-card{border-color:#2d6880}.big-card h3{font-size:25px;margin:0 0 8px}.big-card strong{color:#c4f1ff}.big-card p,.card p{color:#b9c7dd;margin:8px 0}
+    .formula{direction:ltr;text-align:center;background:#050c18;border:1px dashed #315177;border-radius:16px;padding:16px;font-family:Consolas,monospace;font-weight:800;color:#a5f3fc}
+    .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.card h3{margin:0 0 4px;font-size:20px}.metric{font-size:34px;font-weight:900;line-height:1.1;color:#fff}.mini{font-size:13px;color:var(--muted)}
+    .winner{border-color:#65a30d;box-shadow:inset 0 0 0 1px #84cc1633}.benchmark{border-color:#d97706}.lab{border-color:#0284c7}
+    .flow{display:grid;grid-template-columns:repeat(6,1fr);gap:22px;align-items:stretch;direction:ltr}.step{position:relative;text-align:center;direction:rtl;min-height:155px;display:flex;flex-direction:column;justify-content:center}.step:not(:last-child):after{content:"←";position:absolute;right:-22px;top:50%;transform:translateY(-50%);color:var(--cyan);font-size:25px;font-weight:900}.step b{font-size:16px}.step small{color:var(--muted)}
+    .architecture{display:grid;grid-template-columns:.7fr 1.5fr .7fr;gap:18px;align-items:center}.lane{text-align:center}.lane.core{border-color:#7c3aed;padding:28px}.experts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}.expert{background:#192744;border:1px solid #38506f;border-radius:12px;padding:10px;font-size:13px}.router{background:linear-gradient(90deg,#0e7490,#6d28d9);border-radius:14px;padding:13px;font-weight:900}.arrow{font-size:34px;color:var(--cyan);text-align:center}
+    table{width:100%;border-collapse:separate;border-spacing:0;overflow:hidden;border:1px solid var(--line);border-radius:18px;background:#0b172a} th,td{padding:13px 14px;border-bottom:1px solid #1e314e;text-align:right;vertical-align:top} th{background:#132541;color:#c6e8ff;font-size:13px} tr:last-child td{border-bottom:0} td:first-child{font-weight:800}
+    .roadmap{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.roadmap .step{min-height:175px}.num{width:32px;height:32px;display:grid;place-items:center;border-radius:50%;margin:0 auto 10px;background:#0e7490;color:white;font-weight:900}
+    .storage{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}.storage .card{padding:16px}.path{direction:ltr;text-align:left;font:12px Consolas,monospace;color:#93c5fd;overflow-wrap:anywhere}
+    .guards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.guard{border-color:#7f1d3d;background:#2b1020cc}.guard b{color:#fecdd3}
+    .legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}.footer{margin-top:48px;border-top:1px solid var(--line);padding-top:22px;color:var(--muted);font-size:13px;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+    @media(max-width:980px){.decision,.architecture{grid-template-columns:1fr}.cards{grid-template-columns:1fr 1fr}.flow{grid-template-columns:repeat(3,1fr)}.step:nth-child(3):after{display:none}.roadmap{grid-template-columns:1fr 1fr}.storage{grid-template-columns:1fr 1fr}.guards{grid-template-columns:1fr 1fr}.arrow{transform:rotate(90deg)}}
+    @media(max-width:620px){.wrap{width:min(94vw,560px)}.hero{padding:24px}.cards,.flow,.roadmap,.storage,.guards{grid-template-columns:1fr}.step:after{display:none}.hero h1{font-size:38px}table{font-size:12px}th,td{padding:9px}.experts{grid-template-columns:1fr}}
+    @media print{body{background:#fff;color:#111}.wrap{width:100%;padding:0}.hero,.big-card,.card,.step,.lane,.guard,table{background:#fff;color:#111;box-shadow:none;break-inside:avoid}.hero p,.big-card p,.card p,.sub,.mini,.step small,.footer{color:#444}.hero:after{display:none}.status{background:#fff}.flow,.cards,.roadmap{break-inside:avoid}a{color:#075985}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <header class="hero">
+    <div class="kicker">SKY365 × COLIBRI · RESEARCH BLUEPRINT</div>
+    <h1>من الـDense Chat إلى Mixture‑of‑LoRA Experts</h1>
+    <p>الخلاصة العملية: لا نبدأ بـK3 ولا نعدّل خبراء أصلية. نبدأ ببيز محادثة صغير ومجمّد، نضيف LoRA Experts وروتر قابلًا للتدريب، نفهم القياسات على نموذج صغير، ثم نصعد تدريجيًا إلى MK7.</p>
+    <div class="date">لقطة قرار 2026-08-16 · <span class="status partial">PARTIAL — بحث جاهز، تدريب لم يبدأ</span></div>
+  </header>
+
+  <section class="decision">
+    <article class="big-card">
+      <span class="status verified">القاعدة المعمارية</span>
+      <h3>نعم: الـDense Base هو الاختيار الصحيح</h3>
+      <p>في MixLoRA، الـBase نفسه لا يلزم أن يكون MoE. يظل مجمّدًا، بينما تُزرع عدة LoRA Experts داخل FFN في طبقات محددة، ويختار Router محلي <strong>Top‑k لكل Token ولكل Layer</strong>.</p>
+      <div class="formula">Frozen Dense Base + LoRA Experts + Trainable Router</div>
+    </article>
+    <article class="big-card">
+      <span class="status planned">قرار البيز</span>
+      <h3>Qwen2.5 Instruct أولًا</h3>
+      <p><strong>0.5B</strong> لمختبر الروتر، ثم <strong>1.5B</strong> لتجربة Chat عربية ذات معنى. GLM‑Edge يبقى Benchmark للاستدلال، لأن Backend `glm` غير موجود في MoE‑PEFT الذي جمعناه.</p>
+    </article>
+  </section>
+
+  <h2>اختيار Chat Base</h2>
+  <p class="sub">الحجم وحده ليس معيار القرار؛ توافق الـRuntime والعربية أهم في أول تجربة.</p>
+  <section class="cards">
+    <article class="card lab">
+      <span class="status planned">ADOPT FIRST</span>
+      <h3>Qwen2.5‑0.5B‑Instruct</h3>
+      <div class="metric">0.49B</div>
+      <p>أصغر مختبر Chat، متعدد اللغات ويشمل العربية، و`qwen2` مدعوم في MoE‑PEFT الحالي.</p>
+      <div class="mini">الهدف: 2–4 Experts + Top‑1/Top‑2 + telemetry</div>
+    </article>
+    <article class="card winner">
+      <span class="status planned">CHAT PILOT</span>
+      <h3>Qwen2.5‑1.5B‑Instruct</h3>
+      <div class="metric">1.54B</div>
+      <p>المرشح العملي بعد نجاح المختبر؛ Chat عربي، JSON، وأفضل توازن بين الجودة والحجم.</p>
+      <div class="mini">Safetensors نحو 3.09 GB · Apache‑2.0</div>
+    </article>
+    <article class="card benchmark">
+      <span class="status partial">BENCHMARK ONLY</span>
+      <h3>GLM‑Edge‑1.5B‑Chat</h3>
+      <div class="metric">0.91 GiB</div>
+      <p>هذا حجم GGUF Q4 المحلي؛ الموديل خفيف للاستدلال، لكن Safetensors الكامل 3.19 GB و`model_type=glm` غير Plug‑and‑Play مع Runtime الحالي.</p>
+      <div class="mini">نؤجل Custom Integration لما بعد إثبات Qwen Pilot</div>
+    </article>
+  </section>
+
+  <h2>سُلّم التعلم</h2>
+  <p class="sub">كل محطة تجيب سؤالًا واحدًا قبل الانتقال للمحطة التالية.</p>
+  <section class="flow">
+    <article class="step"><b>1 · Switch</b><small>كيف يعمل Top‑1 والـcapacity والـloss؟</small></article>
+    <article class="step"><b>2 · Qwen 0.5B</b><small>هل MixLoRA runtime والـreload صحيحان؟</small></article>
+    <article class="step"><b>3 · Qwen 1.5B</b><small>هل Chat العربي وجودة JSON مقبولان؟</small></article>
+    <article class="step"><b>4 · OLMoE</b><small>كيف يختلف Native Expert routing؟</small></article>
+    <article class="step"><b>5 · Llama2 Ref</b><small>هل نعيد المثال المنشور على Remote؟</small></article>
+    <article class="step"><b>6 · MK7</b><small>Expert contracts + Router v0 + Challenge</small></article>
+  </section>
+
+  <h2>الاستركشر داخل الموديل</h2>
+  <section class="architecture">
+    <div class="lane"><b>Request Router</b><p class="mini">Session · Profile · Tool stickiness<br>Macaron-style</p></div>
+    <div class="arrow">←</div>
+    <div class="lane core">
+      <b>Frozen Dense Chat Base</b>
+      <div class="router">Per‑Layer Token Router · Top‑k</div>
+      <div class="experts">
+        <div class="expert">LoRA Expert A</div>
+        <div class="expert">LoRA Expert B</div>
+        <div class="expert">LoRA Expert N</div>
+      </div>
+      <div class="mini">Weighted combine · Shared/Fallback · Router telemetry</div>
+    </div>
+  </section>
+
+  <h2>قرار الموديولات</h2>
+  <table>
+    <thead><tr><th>الموديول</th><th>دوره عندنا</th><th>القرار</th><th>الحالة</th></tr></thead>
+    <tbody>
+      <tr><td>MixLoRA</td><td>Adapter‑MoE + Top‑k</td><td>المرجع الأساسي</td><td><span class="status verified">VERIFIED source</span></td></tr>
+      <tr><td>MoE‑PEFT</td><td>Runtime للتدريب/التقييم/الاستدلال</td><td>Runtime الأساسي</td><td><span class="status verified">VERIFIED</span></td></tr>
+      <tr><td>Switch‑base‑8</td><td>مختبر ميكانيكا الروتر</td><td>تنزيل صغير بعد موافقة</td><td><span class="status planned">PLANNED</span></td></tr>
+      <tr><td>OLMoE‑1B‑7B</td><td>Native MoE comparison</td><td>استخدام الموجود فقط</td><td><span class="status verified">VERIFIED</span></td></tr>
+      <tr><td>MoST</td><td>Modality masks + shared/routed experts</td><td>دراسة Source</td><td><span class="status blocked">BLOCKED full run</span></td></tr>
+      <tr><td>Macaron</td><td>Request routing + state/tools</td><td>Harness reference</td><td><span class="status verified">VERIFIED</span></td></tr>
+      <tr><td>Router‑R1</td><td>Reward/RL/evaluation</td><td>بعد deterministic Router v0</td><td><span class="status partial">LATER</span></td></tr>
+      <tr><td>Kimi K3</td><td>Architecture horizon</td><td>لا Base محلي ولا expert injection الآن</td><td><span class="status partial">PARTIAL</span></td></tr>
+      <tr><td>Golden Gemma / MK7 Dataset</td><td>المسار المحمي</td><td>لا لمس ولا خلط</td><td><span class="status verified">GUARDRAIL</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2>ما تم</h2>
+  <section class="cards">
+    <article class="card"><span class="status verified">VERIFIED</span><h3>Source Library</h3><p>MixLoRA، MoE‑PEFT، MoST، MoLA، mLoRA، MoE‑LoRA وK3 مع commits مسجلة.</p></article>
+    <article class="card"><span class="status verified">VERIFIED</span><h3>Storage Structure</h3><p>LM Studio يرى F عبر Junction على Q. GGUF مفصول عن Source وعن Safetensors.</p></article>
+    <article class="card"><span class="status verified">VERIFIED</span><h3>Safety Boundary</h3><p>لا تدريب، لا Dataset ضخمة، لا إعادة OLMoE، لا لمس Golden/Gemma/MK7.</p></article>
+  </section>
+
+  <h2>الخطوات القادمة</h2>
+  <section class="roadmap">
+    <article class="step"><div class="num">0</div><b>اعتماد الحزمة</b><small>تثبيت القرار والمصطلحات</small></article>
+    <article class="step"><div class="num">1</div><b>Switch Smoke</b><small>Router logits بلا تدريب منتج</small></article>
+    <article class="step"><div class="num">2</div><b>Qwen 0.5B Lab</b><small>Dataset اصطناعية صغيرة منفصلة</small></article>
+    <article class="step"><div class="num">3</div><b>Qwen 1.5B Pilot</b><small>Arabic + JSON + reload + telemetry</small></article>
+    <article class="step"><div class="num">4</div><b>OLMoE Compare</b><small>استخدام الموجود بلا تنزيل</small></article>
+    <article class="step"><div class="num">5</div><b>Llama2 Remote Ref</b><small>Adapter وBase بموافقتين منفصلتين</small></article>
+    <article class="step"><div class="num">6</div><b>MK7 Contract</b><small>Expert registry + fallback + Challenge</small></article>
+    <article class="step"><div class="num">7</div><b>Training Gate</b><small>Owner approval فقط</small></article>
+  </section>
+
+  <h2>خريطة التخزين</h2>
+  <section class="storage">
+    <article class="card"><span class="status verified">VERIFIED</span><b>Active GGUF</b><div class="path">F:\Colibri-Models\lmstudio</div></article>
+    <article class="card"><span class="status verified">VERIFIED</span><b>MoE Source</b><div class="path">F:\AI-RESOURCES\REFERENCES\MOE</div></article>
+    <article class="card"><span class="status verified">VERIFIED</span><b>Research</b><div class="path">Q:\Colibri\research\external</div></article>
+    <article class="card"><span class="status verified">VERIFIED</span><b>Canonical Docs</b><div class="path">Q:\Colibri\docs\session-map</div></article>
+    <article class="card"><span class="status unresolved">UNRESOLVED</span><b>Archive H:</b><div class="path">غير ظاهر في آخر فحص</div></article>
+  </section>
+
+  <h2>ممنوعات المسار</h2>
+  <section class="guards">
+    <div class="guard"><b>لا تدريب تلقائي</b><br><span class="mini">أي تدريب يحتاج Owner Gate مستقل.</span></div>
+    <div class="guard"><b>لا خلط Bases</b><br><span class="mini">Adapter Llama‑2 لا يُركب على Gemma أو Qwen.</span></div>
+    <div class="guard"><b>لا K3 Injection الآن</b><br><span class="mini">الخبراء per‑layer والحجم Datacenter‑scale.</span></div>
+    <div class="guard"><b>لا اعتماد على H:</b><br><span class="mini">حتى يثبت ويظهر في فحص مستقل.</span></div>
+    <div class="guard"><b>لا خلط GGUF بالتدريب</b><br><span class="mini">GGUF للاستدلال؛ التجربة تحتاج Safetensors.</span></div>
+    <div class="guard"><b>لا تخصص بالاسم</b><br><span class="mini">كل Expert يثبت بالداتا والـChallenge.</span></div>
+  </section>
+
+  <div class="legend">
+    <span class="status verified">VERIFIED</span><span class="status partial">PARTIAL</span><span class="status blocked">BLOCKED</span><span class="status unresolved">UNRESOLVED</span><span class="status planned">PLANNED</span>
+  </div>
+
+  <footer class="footer">
+    <div>Sky365 / Colibri · MoE Router Research Blueprint · 2026-08-16</div>
+    <div><a href="14-SKY365-MOE-ROUTER-MASTER-PLAN-2026-08-16.md">التقرير الكامل</a> · <a href="15-SKY365-MOE-ROUTER-FLOWS-2026-08-16.md">الـFlows</a> · <a href="SKY365-MOE-ROUTER-DECISIONS-2026-08-16.json">Decision Registry</a></div>
+  </footer>
+</main>
+</body>
+</html>
